@@ -25,59 +25,65 @@ import Ragnarok from "../maps/ragnarok.png";
 
 function Main() {
   const [mode, setMode] = useState("CTF");
-  const [stats, setStats] = useState({});
-
-  const fetchGameStats = async () => {
-    const table = mode === "CTF" ? "gamesctf" : "gamestdm";
-    const { data, error } = await supabase.from(table).select("*");
-
-    if (error) {
-      console.error("error", error);
-      return;
-    }
-
-    console.log("data", data);
-
-    const mapStats = {};
-
-    data.forEach((game) => {
-      const mapName = game.map.trim();
-      if (!mapStats[mapName]) {
-        mapStats[mapName] = {
-          wins: 0,
-          losses: 0,
-          damage: 0,
-          time: 0,
-          caps: 0,
-          frags: 0,
-          deaths: 0,
-          games: 0,
-        };
-      }
-
-      mapStats[mapName].wins += game.win;
-      mapStats[mapName].losses += game.win ? 0 : 1;
-      mapStats[mapName].damage += game.damage;
-      mapStats[mapName].time += game.time;
-
-      if (mode === "CTF") {
-        mapStats[mapName].caps += game.caps;
-      } else {
-        mapStats[mapName].frags += game.frags;
-        mapStats[mapName].deaths += game.deaths;
-      }
-
-      mapStats[mapName].games += 1;
-    });
-
-    console.log("stats", mapStats);
-
-    setStats(mapStats);
-  };
+  const [allStats, setAllStats] = useState({ ctf: {}, tdm: {} });
 
   useEffect(() => {
+    const fetchGameStats = async () => {
+      const { data: ctfData, error: ctfError } = await supabase
+        .from("gamesctf")
+        .select("*");
+      const { data: tdmData, error: tdmError } = await supabase
+        .from("gamestdm")
+        .select("*");
+
+      if (ctfError || tdmError) {
+        console.error("Error fetching data", ctfError || tdmError);
+        return;
+      }
+
+      const processStats = (games, isCTF) => {
+        const stats = {};
+        games.forEach((game) => {
+          const mapName = game.map.trim();
+          if (!stats[mapName]) {
+            stats[mapName] = {
+              wins: 0,
+              losses: 0,
+              damage: 0,
+              time: 0,
+              caps: 0,
+              frags: 0,
+              deaths: 0,
+              games: 0,
+            };
+          }
+
+          stats[mapName].wins += game.win;
+          stats[mapName].losses += game.win ? 0 : 1;
+          stats[mapName].damage += game.damage;
+          stats[mapName].time += game.time;
+          if (isCTF) {
+            stats[mapName].caps += game.caps;
+          } else {
+            stats[mapName].frags += game.frags;
+            stats[mapName].deaths += game.deaths;
+          }
+          stats[mapName].games += 1;
+        });
+
+        return stats;
+      };
+
+      setAllStats({
+        ctf: processStats(ctfData, true),
+        tdm: processStats(tdmData, false),
+      });
+    };
+
     fetchGameStats();
-  }, [mode]);
+  }, []);
+
+  const stats = mode === "CTF" ? allStats.ctf : allStats.tdm;
 
   const ctfMaps = [
     { title: "Spider", image: Spider },
@@ -89,12 +95,12 @@ function Main() {
   ];
 
   const tdmMaps = [
-    { title: "Deep", image: Deep },
     { title: "Dreadful", image: Dreadful },
     { title: "Hidden", image: Hidden },
     { title: "Limbus", image: Limbus },
     { title: "Purgatory", image: Purgatory },
     { title: "Ragnarok", image: Ragnarok },
+    { title: "Deep", image: Deep },
   ];
 
   const currentMaps = mode === "CTF" ? ctfMaps : tdmMaps;
@@ -112,18 +118,13 @@ function Main() {
         (stats[mapName].wins + stats[mapName].losses || 1)) *
       100
     ).toFixed(1),
-    capsOrNet:
-      mode === "CTF"
-        ? (stats[mapName].caps / stats[mapName].games).toFixed(2)
-        : (
-            (stats[mapName].frags - stats[mapName].deaths) /
-            (stats[mapName].games || 1)
-          ).toFixed(1),
   }));
 
   return (
     <div>
-      <h1 style={{ color: grey[50], textAlign: "center" }}>Enesy Quake Stats</h1>
+      <h1 style={{ color: grey[50], textAlign: "center" }}>
+        Enesy Quake Stats
+      </h1>
       <Box
         sx={{
           display: "flex",
@@ -189,7 +190,7 @@ function Main() {
               mode === "TDM"
                 ? (
                     (mapData.frags - mapData.deaths) /
-                    (mapData.wins + mapData.losses || 1)
+                    (mapData.games || 1)
                   ).toFixed(1)
                 : capsPer20;
             const dpm = (mapData.damage / (mapData.time / 60)).toFixed(0);
@@ -224,7 +225,6 @@ function Main() {
           <Grid item>
             <PieChart data={pieChartData} />
           </Grid>
-
           <Grid item>
             <BarChart data={barChartData} mode={mode} />
           </Grid>

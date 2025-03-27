@@ -42,7 +42,7 @@ function BarChartComponent({ data, mode }) {
             //     color: "#ff9800",
             //   },
             ]}
-            width={500}
+            width={450}
             height={300}
           />
         ) : (
