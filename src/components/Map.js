@@ -4,7 +4,7 @@ import CardHeader from "@mui/material/CardHeader";
 import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import { grey } from "@mui/material/colors";
+import { grey, green, red } from "@mui/material/colors";
 import Grid from "@mui/material/Grid";
 
 function Map({ title, image, stats, mode }) {
@@ -27,7 +27,10 @@ function Map({ title, image, stats, mode }) {
             </Typography>
             <Typography
               variant="body2"
-              sx={{ fontWeight: "bold", color: grey[50] }}
+              sx={{
+                fontWeight: "bold",
+                color: stats?.winPercentage >= 50 ? green[300] : red[300],
+              }}
             >
               {stats?.winPercentage ?? "N/A"}%
             </Typography>

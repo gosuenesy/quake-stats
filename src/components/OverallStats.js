@@ -4,7 +4,7 @@ import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
-import { grey } from "@mui/material/colors";
+import { grey, green, red } from "@mui/material/colors";
 
 function OverallStats({ stats, mode }) {
   const totalGames = Object.values(stats).reduce(
@@ -75,7 +75,10 @@ function OverallStats({ stats, mode }) {
             </Typography>
             <Typography
               variant="body2"
-              sx={{ fontWeight: "bold", color: grey[50] }}
+              sx={{
+                fontWeight: "bold",
+                color: winPercentage >= 50 ? green[300] : red[300],
+              }}
             >
               {winPercentage}%
             </Typography>
