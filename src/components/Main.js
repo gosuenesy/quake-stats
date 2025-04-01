@@ -6,6 +6,7 @@ import Map from "./Map";
 import { grey } from "@mui/material/colors";
 import PieChart from "./PieChart";
 import BarChart from "./BarChart";
+import OverallStats from "./OverallStats";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import supabase from "../supabaseClient";
@@ -219,13 +220,17 @@ function Main() {
           container
           spacing={2}
           justifyContent="center"
-          alignItems="center"
+          alignItems="stretch"
           sx={{ mt: 2 }}
         >
-          <Grid item>
+          <Grid item sx={{ display: "flex", height: 418 }}>
+            {/*wtf*/}
+            <OverallStats stats={stats} mode={mode} />
+          </Grid>
+          <Grid item sx={{ display: "flex", height: 450 }}>
             <PieChart data={pieChartData} />
           </Grid>
-          <Grid item>
+          <Grid item sx={{ display: "flex", height: 450 }}>
             <BarChart data={barChartData} mode={mode} />
           </Grid>
         </Grid>

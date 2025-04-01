@@ -28,7 +28,7 @@ function PieChartComponent({ data }) {
                 data,
                 innerRadius: 15,
                 outerRadius: 115,
-                paddingAngle: 3,
+                paddingAngle: 2,
                 cornerRadius: 3,
                 startAngle: -45,
                 endAngle: 315,
